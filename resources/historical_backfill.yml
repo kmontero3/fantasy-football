@@ -1,0 +1,75 @@
+resources:
+  jobs:
+    phinasty_historical_backfill:
+      name: phinasty-historical-backfill
+
+      parameters:
+        - name: sleeper_username
+          default: "kmontero3"
+        - name: target_league_name
+          default: "Phinasty League"
+        - name: catalog
+          default: "fantasy_football"
+        - name: bronze_schema
+          default: "bronze"
+
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "6"
+
+      tasks:
+        - task_key: H01_ingest_global
+          environment_key: default
+          spark_python_task:
+            python_file: ../src/ingest_global.py
+
+        - task_key: H02_ingest_leagues
+          environment_key: default
+          spark_python_task:
+            python_file: ../src/ingest_leagues.py
+
+        - task_key: H03_ingest_drafts
+          environment_key: default
+          spark_python_task:
+            python_file: ../src/ingest_drafts.py
+
+        - task_key: H04_ingest_transactions
+          environment_key: default
+          spark_python_task:
+            python_file: ../src/ingest_transactions.py
+
+        - task_key: H05_ingest_matchups
+          environment_key: default
+          spark_python_task:
+            python_file: ../src/ingest_matchups.py
+
+        - task_key: H06_ingest_player_stats
+          environment_key: default
+          spark_python_task:
+            python_file: ../src/ingest_player_stats.py
+
+        - task_key: H07_ingest_projections
+          environment_key: default
+          spark_python_task:
+            python_file: ../src/ingest_projections.py
+
+        - task_key: H08_build_silver
+          depends_on:
+            - task_key: H01_ingest_global
+            - task_key: H02_ingest_leagues
+            - task_key: H03_ingest_drafts
+            - task_key: H04_ingest_transactions
+            - task_key: H05_ingest_matchups
+            - task_key: H06_ingest_player_stats
+            - task_key: H07_ingest_projections
+          environment_key: default
+          spark_python_task:
+            python_file: ../src/build_silver.py
+
+        - task_key: H09_build_gold
+          depends_on:
+            - task_key: H08_build_silver
+          environment_key: default
+          spark_python_task:
+            python_file: ../src/build_gold.py

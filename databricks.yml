@@ -1,0 +1,17 @@
+bundle:
+  name: fantasy_football_historical_backfill
+
+include:
+  - resources/historical_backfill.yml
+
+targets:
+  dev:
+    mode: development
+    default: true
+#     workspace:
+#       host: ${var.workspace_host}
+
+#   prod:
+#     mode: production
+#     workspace:
+#       host: ${var.workspace_host}
